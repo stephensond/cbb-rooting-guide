@@ -36,23 +36,92 @@ def schedules(games):
 
 
 correct_schedules = schedules(format_games(games))
-print(correct_schedules["Northeastern"])
+print(correct_schedules["Hawaii-Pacific"])
+print(correct_schedules["Hawaii"])
+#print(correct_schedules["McNeese State"])
 
 # who to root for
 def root_for(fav_team, team1, team2, schedules):
+    return root_for_help([fav_team], team1, team2, schedules, 1)
+
+map1 = []
+map2 = []
+# what about infinite loops?????
+def root_for_help(teams, team1, team2, schedules, order):
+    print(order)
+    newteams = []
     order1_count = 0
     order2_count = 0
-    for team in schedules[fav_team]:
-        if team == team1:
-            order1_count += 1
-        if team == team2:
-            order2_count += 1
+    for team in teams:
+        
+        for nextteam in schedules[team]:
+            
+            if nextteam == team1:
+                order1_count += 1
+                map1.append((team, order))
+            if nextteam == team2:
+                order2_count += 1
+                map2.append((team, order))
+            newteams.append(nextteam)
         
     if order1_count > order2_count:
+        print(map1)
+        print(map2)
+        print(order1_count)
+        print(order2_count)
         return team1
     elif order2_count > order1_count:
+        print(map1)
+        print(map2)
+        print(order1_count)
+        print(order2_count)
         return team2
     else:
-        return "tie"
+        return root_for_help(newteams, team1, team2, schedules, order + 1)
 
-print(root_for("Northeastern", "Syracuse", "Georgia", correct_schedules))
+
+
+# what about infinite loops?????
+def root_for_help_2(teams, team1, schedules, order):
+    print(order)
+    newteams = []
+    order1_count = 0
+    i = 0
+    for team in teams:
+        
+        if i % 100000 == 0:
+            print(str(i) + 'teams processed')
+            
+        i += 1
+        for nextteam in schedules[team]:
+
+
+            if nextteam == team1:
+                order1_count += 1
+                map1.append((team, order))
+            newteams.append(nextteam)
+
+    if order1_count > 0:
+        return (order, order1_count, team1)
+    else:
+        return root_for_help_2(newteams, team1, schedules, order + 1)
+
+min = [0,0]
+least_favorite_team = 'string'
+for team in correct_schedules:
+    (order, count, team) = root_for_help_2(['Lamar'], team, correct_schedules, 1)
+    if order > min[0]:
+        min[0] = order
+        min[1] = count
+        least_favorite_team = str(team)
+    elif order == min[0] and count < min[1]:
+        min[1] = count
+        least_favorite_team = str(team)
+
+print(least_favorite_team)
+print(min)
+
+
+# print(root_for_help_2(["Northeastern"], team1, schedules, order))
+
+print(root_for("Lamar", "Lehigh", "Hawaii-Pacific", correct_schedules))
